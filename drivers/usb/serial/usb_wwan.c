@@ -819,12 +819,12 @@ int usb_wwan_suspend(struct usb_serial *serial, pm_message_t message)
 }
 EXPORT_SYMBOL(usb_wwan_suspend);
 
-static void play_delayed(struct usb_serial_port *port)
+static int play_delayed(struct usb_serial_port *port)
 {
 	struct usb_wwan_intf_private *data;
 	struct usb_wwan_port_private *portdata;
 	struct urb *urb;
-	int err;
+	int err = 0;
 
 	portdata = usb_get_serial_port_data(port);
 	data = port->serial->private;
@@ -843,6 +843,8 @@ static void play_delayed(struct usb_serial_port *port)
 			break;
 		}
 	}
+
+	return err;
 }
 
 int usb_wwan_resume(struct usb_serial *serial)
@@ -852,7 +854,8 @@ int usb_wwan_resume(struct usb_serial *serial)
 	struct usb_wwan_intf_private *intfdata = serial->private;
 	struct usb_wwan_port_private *portdata;
 	struct urb *urb;
-	int err = 0;
+	int err;
+	int err_count = 0;
 
 	dbg("%s entered", __func__);
 
@@ -874,8 +877,13 @@ int usb_wwan_resume(struct usb_serial *serial)
 				dev_err(&port->dev,
 					"%s: submit int urb failed: %d\n",
 					__func__, err);
+				err_count++;
 			}
 		}
+
+		err = play_delayed(port);
+		if (err)
+			err_count++;
 
 		for (j = 0; j < N_IN_URB; j++) {
 			urb = portdata->in_urbs[j];
@@ -896,7 +904,6 @@ int usb_wwan_resume(struct usb_serial *serial)
 				goto err_out;
 			}
 		}
-		play_delayed(port);
 	}
 	spin_unlock_irq(&intfdata->susp_lock);
 
