@@ -1092,12 +1092,11 @@ int gpiochip_add(struct gpio_chip *chip)
 unlock:
 	spin_unlock_irqrestore(&gpio_lock, flags);
 
-	if (status)
-		goto fail;
-
 	status = gpiochip_export(chip);
-	if (status)
+	if (status) {
+		of_gpiochip_remove(chip);
 		goto fail;
+	}
 
 	pr_info("gpiochip_add: registered GPIOs %d to %d on device: %s\n",
 		chip->base, chip->base + chip->ngpio - 1,
