@@ -129,6 +129,7 @@ struct usb_hcd {
 #if defined(CONFIG_ARCH_MSM8974_THOR) || defined(CONFIG_ARCH_MSM8974_APOLLO)
 	u32			fixed_bus_num;
 #endif
+	unsigned		cant_recv_wakeups:1;
 
 	unsigned int		irq;		/* irq allocated */
 	void __iomem		*regs;		/* device memory/io */
