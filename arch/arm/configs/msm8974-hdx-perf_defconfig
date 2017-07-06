@@ -570,3 +570,10 @@ CONFIG_CRC_CCITT=y
 CONFIG_PFT=y
 CONFIG_IDME=y
 CONFIG_AMZN_RAM_CONSOLE=y
+
+########################
+#### Phoenix Kernel ####
+########################
+
+CONFIG_LOCALVERSION="-Phoenix-Kernel"
+CONFIG_LOCALVERSION_AUTO=n
