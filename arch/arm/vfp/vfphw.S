@@ -61,13 +61,13 @@
 
 @ VFP hardware support entry point.
 @
-@  r0  = instruction opcode (32-bit ARM or two 16-bit Thumb)
-@  r2  = PC value to resume execution after successful emulation
-@  r9  = normal "successful" return address
+@  r0  = faulted instruction
+@  r2  = faulted PC+4
+@  r9  = successful return
 @  r10 = vfp_state union
 @  r11 = CPU number
-@  lr  = unrecognised instruction return address
-@  IRQs enabled.
+@  lr  = failure return
+
 ENTRY(vfp_support_entry)
 	DBGSTR3	"instr %08x pc %08x state %p", r0, r2, r10
 
