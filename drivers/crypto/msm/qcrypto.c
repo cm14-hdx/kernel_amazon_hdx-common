@@ -23,6 +23,7 @@
 #include <linux/rtnetlink.h>
 #include <linux/interrupt.h>
 #include <linux/spinlock.h>
+#include <linux/llist.h>
 #include <linux/debugfs.h>
 #include <linux/workqueue.h>
 #include <linux/sched.h>

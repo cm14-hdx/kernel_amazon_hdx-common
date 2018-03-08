@@ -1205,6 +1205,7 @@ static int console_trylock_for_printk(unsigned int cpu)
 	logbuf_cpu = UINT_MAX;
 	if (wake)
 		up(&console_sem);
+	raw_spin_unlock(&logbuf_lock);
 	return retval;
 }
 
@@ -1980,7 +1981,6 @@ void register_console(struct console *newcon)
 	 */
 	for (i = 0; i < MAX_CMDLINECONSOLES && console_cmdline[i].name[0];
 			i++) {
-		BUILD_BUG_ON(sizeof(console_cmdline[i].name) != sizeof(newcon->name));
 		if (strcmp(console_cmdline[i].name, newcon->name) != 0)
 			continue;
 		if (newcon->index >= 0 &&

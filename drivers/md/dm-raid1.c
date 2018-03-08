@@ -1151,7 +1151,7 @@ static void mirror_dtr(struct dm_target *ti)
 
 	del_timer_sync(&ms->timer);
 	flush_workqueue(ms->kmirrord_wq);
-	flush_work_sync(&ms->trigger_event);
+	flush_work(&ms->trigger_event);
 	dm_kcopyd_client_destroy(ms->kcopyd_client);
 	destroy_workqueue(ms->kmirrord_wq);
 	free_context(ms, ti, ms->nr_mirrors);
@@ -1371,8 +1371,8 @@ static char device_status_char(struct mirror *m)
 }
 
 
-static void mirror_status(struct dm_target *ti, status_type_t type,
-			  char *result, unsigned int maxlen)
+static int mirror_status(struct dm_target *ti, status_type_t type,
+			 char *result, unsigned int maxlen)
 {
 	unsigned int m, sz = 0;
 	struct mirror_set *ms = (struct mirror_set *) ti->private;
@@ -1407,6 +1407,8 @@ static void mirror_status(struct dm_target *ti, status_type_t type,
 		if (ms->features & DM_RAID1_HANDLE_ERRORS)
 			DMEMIT(" 1 handle_errors");
 	}
+
+	return 0;
 }
 
 static int mirror_iterate_devices(struct dm_target *ti,

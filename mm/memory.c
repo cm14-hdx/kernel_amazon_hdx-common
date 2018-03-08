@@ -1837,13 +1837,9 @@ int __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
 				 * The VM_FAULT_WRITE bit tells us that
 				 * do_wp_page has broken COW when necessary,
 				 * even if maybe_mkwrite decided not to set
-				 * pte_write. We can thus safely do subsequent
-				 * page lookups as if they were reads. But only
-				 * do so when looping for pte_write is futile:
-				 * in some cases userspace may also be wanting
-				 * to write to the gotten user page, which a
-				 * read fault here might prevent (a readonly
-				 * page might get reCOWed by userspace write).
+				 * pte_write. We cannot simply drop FOLL_WRITE
+				 * here because the COWed page might be gone by
+				 * the time we do the subsequent page lookups.
 				 */
 				if ((ret & VM_FAULT_WRITE) &&
 				    !(vma->vm_flags & VM_WRITE))
