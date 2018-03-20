@@ -507,6 +507,14 @@ static void option_instat_callback(struct urb *urb);
 #define VIATELECOM_VENDOR_ID			0x15eb
 #define VIATELECOM_PRODUCT_CDS7			0x0001
 
+/* LAB126 products */
+#define LAB126_VENDOR_ID			0x1949
+#define ELMO_PRODUCT_ID				0x9001
+#define GROVER_PRODUCT_ID			0x9002
+#define ERNIE_PRODUCT_ID			0x9003
+#define ERNIE2_PRODUCT_ID			0x9004
+#define ERNIE2_TEST_PRODUCT_ID			0x9005
+
 /* some devices interfaces need special handling due to a number of reasons */
 enum option_blacklist_reason {
 		OPTION_BLACKLIST_NONE = 0,
@@ -1737,43 +1745,39 @@ static const struct usb_device_id option_ids[] = {
 	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, 0x00a1, 0xff, 0x02, 0x01) },
 	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, 0x00a2, 0xff, 0x00, 0x00) },
 	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, 0x00a2, 0xff, 0x02, 0x01) },        /* MediaTek MT6276M modem & app port */
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_1COM, 0x0a, 0x00, 0x00) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_5COM, 0xff, 0x02, 0x01) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_5COM, 0xff, 0x00, 0x00) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_4COM, 0xff, 0x02, 0x01) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_4COM, 0xff, 0x00, 0x00) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_7208_1COM, 0x02, 0x00, 0x00) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_7208_2COM, 0x02, 0x02, 0x01) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_FP_1COM, 0x0a, 0x00, 0x00) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_FP_2COM, 0x0a, 0x00, 0x00) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_FPDC_1COM, 0x0a, 0x00, 0x00) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_FPDC_2COM, 0x0a, 0x00, 0x00) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_7103_2COM, 0xff, 0x00, 0x00) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_7106_2COM, 0x02, 0x02, 0x01) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_4COM2, 0xff, 0x02, 0x01) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_4COM2, 0xff, 0x00, 0x00) },
-	{ USB_DEVICE(CELLIENT_VENDOR_ID, CELLIENT_PRODUCT_MEN200) },
-	{ USB_DEVICE(PETATEL_VENDOR_ID, PETATEL_PRODUCT_NP10T_600A) },
-	{ USB_DEVICE(PETATEL_VENDOR_ID, PETATEL_PRODUCT_NP10T_600E) },
-	{ USB_DEVICE(TPLINK_VENDOR_ID, TPLINK_PRODUCT_MA180),
-	  .driver_info = (kernel_ulong_t)&net_intf4_blacklist },
-	{ USB_DEVICE(TPLINK_VENDOR_ID, 0x9000),					/* TP-Link MA260 */
-	  .driver_info = (kernel_ulong_t)&net_intf4_blacklist },
-	{ USB_DEVICE(CHANGHONG_VENDOR_ID, CHANGHONG_PRODUCT_CH690) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(0x2001, 0x7d01, 0xff, 0x02, 0x01) },	/* D-Link DWM-156 (variant) */
-	{ USB_DEVICE_AND_INTERFACE_INFO(0x2001, 0x7d01, 0xff, 0x00, 0x00) },	/* D-Link DWM-156 (variant) */
-	{ USB_DEVICE_AND_INTERFACE_INFO(0x2001, 0x7d02, 0xff, 0x02, 0x01) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(0x2001, 0x7d02, 0xff, 0x00, 0x00) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(0x2001, 0x7d03, 0xff, 0x02, 0x01) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(0x2001, 0x7d03, 0xff, 0x00, 0x00) },
-	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e01, 0xff, 0xff, 0xff) }, /* D-Link DWM-152/C1 */
-	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e02, 0xff, 0xff, 0xff) }, /* D-Link DWM-156/C1 */
-	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x4000, 0xff) },                /* OLICARD300 - MT6225 */
-	{ USB_DEVICE(INOVIA_VENDOR_ID, INOVIA_SEW858) },
-	{ USB_DEVICE(VIATELECOM_VENDOR_ID, VIATELECOM_PRODUCT_CDS7) },
+	{ USB_DEVICE(LAB126_VENDOR_ID, ELMO_PRODUCT_ID) },
+	{ USB_DEVICE_AND_INTERFACE_INFO(LAB126_VENDOR_ID, GROVER_PRODUCT_ID, 0xff, 0x2, 0x1) },
+	/* Ernie - Diag port in normal mode */
+	{ USB_DEVICE_AND_INTERFACE_INFO(LAB126_VENDOR_ID, ERNIE_PRODUCT_ID, 0xff, 0xb, 0x0) },
+	/* Ernie - Diag port in download mode */
+	{ USB_DEVICE_AND_INTERFACE_INFO(LAB126_VENDOR_ID, ERNIE_PRODUCT_ID, 0xff, 0xb, 0x1) },
+	/* Ernie - mdm port */
+	{ USB_DEVICE_AND_INTERFACE_INFO(LAB126_VENDOR_ID, ERNIE_PRODUCT_ID, 0xff, 0x2, 0x1) },
+	/* Ernie2 - Diag port in normal mode */
+	{ USB_DEVICE_AND_INTERFACE_INFO(LAB126_VENDOR_ID, ERNIE2_PRODUCT_ID, 0xff, 0xb, 0x0) },
+	/* Ernie2 - Diag port in download mode */
+	{ USB_DEVICE_AND_INTERFACE_INFO(LAB126_VENDOR_ID, ERNIE2_PRODUCT_ID, 0xff, 0xb, 0x1) },
+	/* Ernie2 - mdm port */
+	{ USB_DEVICE_AND_INTERFACE_INFO(LAB126_VENDOR_ID, ERNIE2_PRODUCT_ID, 0xff, 0x2, 0x1) },
+	/* Ernie2 - Diag port in normal mode */
+	{ USB_DEVICE_AND_INTERFACE_INFO(LAB126_VENDOR_ID, ERNIE2_TEST_PRODUCT_ID, 0xff, 0xb, 0x0) },
+	/* Ernie2 - Diag port in download mode */
+	{ USB_DEVICE_AND_INTERFACE_INFO(LAB126_VENDOR_ID, ERNIE2_TEST_PRODUCT_ID, 0xff, 0xb, 0x1) },
+	/* Ernie2 - mdm port */
+	{ USB_DEVICE_AND_INTERFACE_INFO(LAB126_VENDOR_ID, ERNIE2_TEST_PRODUCT_ID, 0xff, 0x2, 0x1) },
+	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x9008)}, /* Emergency download mode */
 	{ } /* Terminating entry */
 };
 MODULE_DEVICE_TABLE(usb, option_ids);
+
+#ifdef CONFIG_PM
+static int option_reset_resume(struct usb_interface *intf)
+{
+	struct usb_serial *serial = usb_get_intfdata(intf);
+	dev_err(&serial->dev->dev, "%s\n", __func__);
+	return usb_serial_resume(intf);
+}
+#endif
 
 static struct usb_driver option_driver = {
 	.name       = "option",
@@ -1782,6 +1786,7 @@ static struct usb_driver option_driver = {
 #ifdef CONFIG_PM
 	.suspend    = usb_serial_suspend,
 	.resume     = usb_serial_resume,
+	.reset_resume = option_reset_resume,
 	.supports_autosuspend =	1,
 #endif
 	.id_table   = option_ids,
@@ -1814,6 +1819,8 @@ static struct usb_serial_driver option_1port_device = {
 	.disconnect        = usb_wwan_disconnect,
 	.release           = option_release,
 	.read_int_callback = option_instat_callback,
+	.throttle          = usb_wwan_throttle,
+	.unthrottle        = usb_wwan_unthrottle,
 #ifdef CONFIG_PM
 	.suspend           = usb_wwan_suspend,
 	.resume            = usb_wwan_resume,
@@ -1825,6 +1832,30 @@ static struct usb_serial_driver * const serial_drivers[] = {
 };
 
 static bool debug;
+
+/* per port private data */
+
+struct option_port_private {
+	/* Input endpoints and buffer for this port */
+	struct urb *in_urbs[N_IN_URB];
+	u8 *in_buffer[N_IN_URB];
+	/* Output endpoints and buffer for this port */
+	struct urb *out_urbs[N_OUT_URB];
+	u8 *out_buffer[N_OUT_URB];
+	unsigned long out_busy;		/* Bit vector of URBs in use */
+	int opened;
+	struct usb_anchor delayed;
+
+	/* Settings for the port */
+	int rts_state;	/* Handshaking pins (outputs) */
+	int dtr_state;
+	int cts_state;	/* Handshaking pins (inputs) */
+	int dsr_state;
+	int dcd_state;
+	int ri_state;
+
+	unsigned long tx_start_time[N_OUT_URB];
+};
 
 module_usb_serial_driver(option_driver, serial_drivers);
 
