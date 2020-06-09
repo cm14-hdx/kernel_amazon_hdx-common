@@ -432,8 +432,15 @@ struct input_keymap_entry {
 #define KEY_SEARCH		217
 #define KEY_CONNECT		218
 #define KEY_FINANCE		219	/* AL Checkbook/Finance */
+#if 0  // TODO
 #define KEY_SPORT		220
 #define KEY_SHOP		221
+#else
+#define KEY_SPORT              250
+#define KEY_SHOP               251
+#define KEY_SPORT_B            252
+#define KEY_SHOP_B             253
+#endif
 #define KEY_ALTERASE		222
 #define KEY_CANCEL		223	/* AC Cancel */
 #define KEY_BRIGHTNESSDOWN	224
@@ -470,6 +477,11 @@ struct input_keymap_entry {
 #define KEY_RFKILL		247	/* Key that controls all radios */
 
 #define KEY_MICMUTE		248	/* Mute / unmute the microphone */
+
+#define KEY_NAVI_RIGHT  249
+#define KEY_NAVI_LEFT   254
+#define KEY_FNGR_DETECT 0x2e8
+#define KEY_NAVI_LONG   183
 
 /* Code 255 is reserved for special needs of AT keyboard driver */
 
@@ -512,10 +524,14 @@ struct input_keymap_entry {
 
 #define BTN_GAMEPAD		0x130
 #define BTN_A			0x130
+#define BTN_SOUTH		0x130
 #define BTN_B			0x131
+#define BTN_EAST		0x131
 #define BTN_C			0x132
 #define BTN_X			0x133
+#define BTN_NORTH		0x133
 #define BTN_Y			0x134
+#define BTN_WEST		0x134
 #define BTN_Z			0x135
 #define BTN_TL			0x136
 #define BTN_TR			0x137
@@ -706,6 +722,19 @@ struct input_keymap_entry {
 #define KEY_CAMERA_DOWN		0x218
 #define KEY_CAMERA_LEFT		0x219
 #define KEY_CAMERA_RIGHT	0x21a
+#define KEY_GESTURE_C  0x21b
+#define KEY_GESTURE_LR 0x21c
+#define KEY_GESTURE_RL 0x21d
+#define KEY_GESTURE_DT 0x21e
+#define KEY_GESTURE_V  0x21f
+#define KEY_GESTURE_E  0x220
+#define KEY_GESTURE_M  0x221
+#define KEY_GESTURE_W  0x222
+
+#define BTN_DPAD_UP		0x220
+#define BTN_DPAD_DOWN		0x221
+#define BTN_DPAD_LEFT		0x222
+#define BTN_DPAD_RIGHT		0x223
 
 #define BTN_TRIGGER_HAPPY		0x2c0
 #define BTN_TRIGGER_HAPPY1		0x2c0
@@ -801,6 +830,9 @@ struct input_keymap_entry {
 #define ABS_TOOL_WIDTH		0x1c
 
 #define ABS_VOLUME		0x20
+#define ABS_R                   0x21
+#define ABS_G                   0x22
+#define ABS_B                   0x23
 
 #define ABS_MISC		0x28
 

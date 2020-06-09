@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -172,7 +172,7 @@ static int ion_user_to_kernel(struct smem_client *client, int fd, u32 offset,
 	mem->device_addr = iova;
 	mem->size = buffer_size;
 	dprintk(VIDC_DBG,
-		"%s: ion_handle = %pK, fd = %d, device_addr = 0x%x, size = %d, kvaddr = %pK, buffer_type = %d\n",
+		"%s: ion_handle = 0x%pK, fd = %d, device_addr = 0x%x, size = %d, kvaddr = 0x%pK, buffer_type = %d\n",
 		__func__, mem->smem_priv, fd, (u32)mem->device_addr,
 		mem->size, mem->kvaddr, mem->buffer_type);
 	return rc;
@@ -245,7 +245,7 @@ static int alloc_ion_mem(struct smem_client *client, size_t size, u32 align,
 	mem->device_addr = iova;
 	mem->size = size;
 	dprintk(VIDC_DBG,
-		"%s: ion_handle = %pK, device_addr = 0x%x, size = %d, kvaddr = %pK, buffer_type = %d\n",
+		"%s: ion_handle = 0x%pK, device_addr = 0x%x, size = %d, kvaddr = 0x%pK, buffer_type = %d\n",
 		__func__, mem->smem_priv, (u32)mem->device_addr,
 		mem->size, mem->kvaddr, mem->buffer_type);
 	return rc;
@@ -262,7 +262,7 @@ static void free_ion_mem(struct smem_client *client, struct msm_smem *mem)
 	int domain, partition, rc;
 
 	dprintk(VIDC_DBG,
-		"%s: ion_handle = %pK, device_addr = 0x%x, size = %d, kvaddr = %pK, buffer_type = %d\n",
+		"%s: ion_handle = 0x%pK, device_addr = 0x%x, size = %d, kvaddr = 0x%pK, buffer_type = %d\n",
 		__func__, mem->smem_priv, (u32)mem->device_addr,
 		mem->size, mem->kvaddr, mem->buffer_type);
 	rc = msm_smem_get_domain_partition((void *)client, mem->flags,
@@ -325,6 +325,22 @@ struct msm_smem *msm_smem_user_to_kernel(void *clt, int fd, u32 offset,
 		mem = NULL;
 	}
 	return mem;
+}
+
+bool msm_smem_compare_buffers(void *clt, int fd, void *priv)
+{
+	struct smem_client *client = clt;
+	struct ion_handle *handle = NULL;
+	bool ret = false;
+	if (!clt || !priv) {
+		dprintk(VIDC_ERR, "Invalid params: %p, %p\n",
+			clt, priv);
+		return false;
+	}
+	handle = ion_import_dma_buf(client->clnt, fd);
+	ret = handle == priv;
+	handle ? ion_free(client->clnt, handle) : 0;
+	return ret;
 }
 
 static int ion_cache_operations(struct smem_client *client,

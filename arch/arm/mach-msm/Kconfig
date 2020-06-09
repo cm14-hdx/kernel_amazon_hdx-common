@@ -287,6 +287,7 @@ config ARCH_MSM8974
 	select ARCH_WANT_KMAP_ATOMIC_FLUSH
 	select KRAIT_REGULATOR
 	select ENABLE_VMALLOC_SAVINGS
+	select HAS_MACH_MEMUTILS
 
 config ARCH_MSM8974_THOR
         bool "ARCH_MSM8974_THOR"
@@ -3056,6 +3057,18 @@ config AMZN_RAM_CONSOLE
        depends on ARCH_MSM8974_THOR || ARCH_MSM8974_APOLLO
        help
         Enable the last_kmsg support for amazon device.
+		
+config MSM_SECBOOT
+	default n
+	bool "MSM Secboot verification driver"
+	help
+	Driver to expose secureboot status
+
+config HAS_MACH_MEMUTILS
+	default n
+	bool "Motorola MSM memcpy enhancements"
+	help
+	Faster memcpy performance for Krait
 endif
 
 config KERNEL_TEXT_MPU_PROT

@@ -30,11 +30,15 @@
 #include <linux/regulator/machine.h>
 #include <linux/of_batterydata.h>
 #include <linux/qpnp-revid.h>
-#include <linux/android_alarm.h>
+#include <linux/alarmtimer.h>
 #include <linux/spinlock.h>
 #include <linux/gpio.h>
 #include <linux/of_gpio.h>
 #include <linux/qpnp/pin.h>
+
+#ifdef CONFIG_BATTERY_BQ27530
+#define SUPPORT_QPNP_VBUS_OVP
+#endif
 
 /* Interrupt offsets */
 #define INT_RT_STS(base)			(base + 0x10)
@@ -410,6 +414,12 @@ struct qpnp_chg_chip {
 	u8				chg_temp_thresh_default;
 };
 
+#ifdef CONFIG_BATTERY_BQ27530
+static struct qpnp_chg_chip *qpnp_chip = NULL;
+
+extern int bq24192_update_ovp_state(int usb_health);
+#endif
+
 static void
 qpnp_chg_set_appropriate_battery_current(struct qpnp_chg_chip *chip);
 
@@ -735,8 +745,11 @@ qpnp_chg_is_batt_present(struct qpnp_chg_chip *chip)
 				INT_RT_STS(chip->bat_if_base), rc);
 		return rc;
 	}
-
+#ifdef CONFIG_BATTERY_BQ27530
+	return 1;
+#else
 	return (batt_pres_rt_sts & BATT_PRES_IRQ) ? 1 : 0;
+#endif
 }
 
 static int
@@ -872,6 +885,49 @@ qpnp_chg_check_usbin_health(struct qpnp_chg_chip *chip)
 
 	return usbin_health;
 }
+
+#ifdef CONFIG_BATTERY_BQ27530
+int bq24192_get_usbin_health(void)
+{
+	int usbin_health = -1;
+
+	if(NULL == qpnp_chip){
+		printk("%s qpnp_chip is NULL.\n",__func__);
+		return usbin_health;
+	}
+
+	usbin_health = qpnp_chg_check_usbin_health(qpnp_chip);
+
+	return usbin_health;
+}
+
+int bq24192_is_usbin_present(void)
+{
+	int usb_present = -1;
+
+	if(NULL == qpnp_chip){
+		printk("%s qpnp_chip is NULL.\n",__func__);
+		return usb_present;
+	}
+	usb_present = qpnp_chg_is_usb_chg_plugged_in(qpnp_chip);
+
+	return usb_present;
+}
+
+int bq24192_is_usbin_hostmode(void)
+{
+	int host_mode = -1;
+
+	if(NULL == qpnp_chip){
+		printk("%s qpnp_chip is NULL.\n",__func__);
+		return host_mode;
+	}
+	host_mode = qpnp_chg_is_otg_en_set(qpnp_chip);
+	/*printk("%s usb_present %d.\n",__func__,usb_present);*/
+
+	return host_mode;
+}
+#endif
 
 static int
 qpnp_chg_is_dc_chg_plugged_in(struct qpnp_chg_chip *chip)
@@ -4073,7 +4129,7 @@ mutex_unlock:
 	return rc;
 }
 
-#define POWER_STAGE_REDUCE_CHECK_PERIOD_SECONDS		20
+#define POWER_STAGE_REDUCE_CHECK_PERIOD_NS		(20LL * NSEC_PER_SEC)
 #define POWER_STAGE_REDUCE_MAX_VBAT_UV			3900000
 #define POWER_STAGE_REDUCE_MIN_VCHG_UV			4800000
 #define POWER_STAGE_SEL_MASK				0x0F
@@ -4126,6 +4182,23 @@ qpnp_chg_power_stage_set(struct qpnp_chg_chip *chip, bool reduce)
 	return rc;
 }
 
+#ifdef CONFIG_BATTERY_BQ27530
+long qpnp_batt_id = 0;
+static int
+qpnp_get_batt_id(struct qpnp_chg_chip *chip)
+{
+	int rc = 0;
+	struct qpnp_vadc_result results;
+
+	rc = qpnp_vadc_read(chip->vadc_dev, LR_MUX2_BAT_ID, &results);
+	if (rc) {
+		pr_err("Unable to read batt id rc=%d\n", rc);
+		return 0;
+	}
+	return results.physical;
+}
+#endif
+
 static int
 qpnp_chg_get_vusbin_uv(struct qpnp_chg_chip *chip)
 {
@@ -4174,10 +4247,25 @@ int get_vbat_averaged(struct qpnp_chg_chip *chip, int sample_count)
 	return vbat_uv;
 }
 
+#ifdef SUPPORT_QPNP_VBUS_OVP
+#define VBUS_MAX_THRESHOLD		6500000
+#define VBUS_SAMPLE_COUNT		16
+int qpnp_check_vbus_ovp(int *vusb_uv)
+{
+	*vusb_uv = get_vusb_averaged(qpnp_chip, VBUS_SAMPLE_COUNT);
+
+	//printk("%s: vbus is %d\n", __func__, *vusb_uv);
+	if (*vusb_uv >= VBUS_MAX_THRESHOLD) {
+		pr_err("%s, vbus is too high, %d >= %d\n", __func__, *vusb_uv, VBUS_MAX_THRESHOLD);
+		return 1;
+	} else
+		return 0;
+}
+#endif
+
 static void
 qpnp_chg_reduce_power_stage(struct qpnp_chg_chip *chip)
 {
-	struct timespec ts;
 	bool power_stage_reduced_in_hw = qpnp_chg_is_power_stage_reduced(chip);
 	bool reduce_power_stage = false;
 	int vbat_uv = get_vbat_averaged(chip, 16);
@@ -4237,11 +4325,8 @@ qpnp_chg_reduce_power_stage(struct qpnp_chg_chip *chip)
 	}
 
 	if (usb_present && usb_ma_above_wall) {
-		getnstimeofday(&ts);
-		ts.tv_sec += POWER_STAGE_REDUCE_CHECK_PERIOD_SECONDS;
-		alarm_start_range(&chip->reduce_power_stage_alarm,
-					timespec_to_ktime(ts),
-					timespec_to_ktime(ts));
+		alarm_start_relative(&chip->reduce_power_stage_alarm,
+				ns_to_ktime(POWER_STAGE_REDUCE_CHECK_PERIOD_NS));
 	} else {
 		pr_debug("stopping power stage workaround\n");
 		chip->power_stage_workaround_running = false;
@@ -4276,13 +4361,15 @@ qpnp_chg_reduce_power_stage_work(struct work_struct *work)
 	qpnp_chg_reduce_power_stage(chip);
 }
 
-static void
-qpnp_chg_reduce_power_stage_callback(struct alarm *alarm)
+static enum alarmtimer_restart
+qpnp_chg_reduce_power_stage_callback(struct alarm *alarm, ktime_t now)
 {
 	struct qpnp_chg_chip *chip = container_of(alarm, struct qpnp_chg_chip,
 						reduce_power_stage_alarm);
 
 	schedule_work(&chip->reduce_power_stage_work);
+
+	return ALARMTIMER_NORESTART;
 }
 
 static int
@@ -5271,7 +5358,7 @@ qpnp_charger_probe(struct spmi_device *spmi)
 
 	mutex_init(&chip->jeita_configure_lock);
 	spin_lock_init(&chip->usbin_health_monitor_lock);
-	alarm_init(&chip->reduce_power_stage_alarm, ANDROID_ALARM_RTC_WAKEUP,
+	alarm_init(&chip->reduce_power_stage_alarm, ALARM_REALTIME,
 			qpnp_chg_reduce_power_stage_callback);
 	INIT_WORK(&chip->reduce_power_stage_work,
 			qpnp_chg_reduce_power_stage_work);
@@ -5640,6 +5727,10 @@ qpnp_charger_probe(struct spmi_device *spmi)
 			qpnp_chg_is_dc_chg_plugged_in(chip),
 			get_prop_batt_present(chip),
 			get_prop_batt_health(chip));
+#ifdef CONFIG_BATTERY_BQ27530
+			qpnp_chip = chip;
+#endif
+
 	return 0;
 
 unregister_dc_psy:

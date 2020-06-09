@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2014, 2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -568,6 +568,8 @@ static int msm_pcm_playback_close(struct snd_pcm_substream *substream)
 	msm_pcm_routing_dereg_phy_stream(soc_prtd->dai_link->be_id,
 						SNDRV_PCM_STREAM_PLAYBACK);
 	kfree(prtd);
+	runtime->private_data = NULL;
+
 	return 0;
 }
 
@@ -671,6 +673,7 @@ static int msm_pcm_capture_close(struct snd_pcm_substream *substream)
 	msm_pcm_routing_dereg_phy_stream(soc_prtd->dai_link->be_id,
 		SNDRV_PCM_STREAM_CAPTURE);
 	kfree(prtd);
+	runtime->private_data = NULL;
 
 	return 0;
 }
@@ -1051,9 +1054,9 @@ static __devinit int msm_pcm_probe(struct platform_device *pdev)
 	const char *latency_level;
 
 	rc = of_property_read_u32(pdev->dev.of_node,
-				"qti,msm-pcm-dsp-id", &id);
+				"qcom,msm-pcm-dsp-id", &id);
 	if (rc) {
-		dev_err(&pdev->dev, "%s: qti,msm-pcm-dsp-id missing in DT node\n",
+		dev_err(&pdev->dev, "%s: qcom,msm-pcm-dsp-id missing in DT node\n",
 					__func__);
 		return rc;
 	}
@@ -1065,11 +1068,11 @@ static __devinit int msm_pcm_probe(struct platform_device *pdev)
 	}
 
 	if (of_property_read_bool(pdev->dev.of_node,
-				"qti,msm-pcm-low-latency")) {
+				"qcom,msm-pcm-low-latency")) {
 
 		pdata->perf_mode = LOW_LATENCY_PCM_MODE;
 		rc = of_property_read_string(pdev->dev.of_node,
-			"qti,latency-level", &latency_level);
+			"qcom,latency-level", &latency_level);
 		if (!rc) {
 			if (!strcmp(latency_level, "ultra"))
 				pdata->perf_mode = ULTRA_LOW_LATENCY_PCM_MODE;
@@ -1097,7 +1100,7 @@ static int msm_pcm_remove(struct platform_device *pdev)
 	return 0;
 }
 static const struct of_device_id msm_pcm_dt_match[] = {
-	{.compatible = "qti,msm-pcm-dsp"},
+	{.compatible = "qcom,msm-pcm-dsp"},
 	{}
 };
 MODULE_DEVICE_TABLE(of, msm_pcm_dt_match);

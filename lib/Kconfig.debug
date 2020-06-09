@@ -3,12 +3,16 @@ config PRINTK_TIME
 	bool "Show timing information on printks"
 	depends on PRINTK
 	help
-	  Selecting this option causes timing information to be
-	  included in printk output.  This allows you to measure
-	  the interval between kernel operations, including bootup
-	  operations.  This is useful for identifying long delays
-	  in kernel startup.  Or add printk.time=1 at boot-time.
-	  See Documentation/kernel-parameters.txt
+	  Selecting this option causes time stamps of the printk()
+	  messages to be added to the output of the syslog() system
+	  call and at the console.
+
+	  The timestamp is always recorded internally, and exported
+	  to /dev/kmsg. This flag just specifies if the timestamp should
+	  be included, not that the timestamp is recorded.
+
+	  The behavior is also controlled by the kernel command line
+	  parameter printk.time=1. See Documentation/kernel-parameters.txt
 
 config DEFAULT_MESSAGE_LOGLEVEL
 	int "Default message log level (1-7)"
@@ -311,20 +315,6 @@ config SCHEDSTATS
 	  If you aren't debugging the scheduler or trying to tune a specific
 	  application, you can say N to avoid the very slight overhead
 	  this adds.
-
-config TIMER_STATS
-	bool "Collect kernel timers statistics"
-	depends on DEBUG_KERNEL && PROC_FS
-	help
-	  If you say Y here, additional code will be inserted into the
-	  timer routines to collect statistics about kernel timers being
-	  reprogrammed. The statistics can be read from /proc/timer_stats.
-	  The statistics collection is started by writing 1 to /proc/timer_stats,
-	  writing 0 stops it. This feature is useful to collect information
-	  about timer usage patterns in kernel and userspace. This feature
-	  is lightweight if enabled in the kernel config but not activated
-	  (it defaults to deactivated on bootup and will only be activated
-	  if some application like powertop activates it explicitly).
 
 config DEBUG_OBJECTS
 	bool "Debug object operations"

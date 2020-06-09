@@ -1271,9 +1271,6 @@ struct xhci_cd {
 	union xhci_trb		*cmd_trb;
 };
 
-/* xHCI command default timeout value */
-#define XHCI_CMD_DEFAULT_TIMEOUT	(5 * HZ)
-
 struct xhci_dequeue_state {
 	struct xhci_segment *new_deq_seg;
 	union xhci_trb *new_deq_ptr;
@@ -1512,7 +1509,6 @@ struct xhci_hcd {
 #define XHCI_RESET_ON_RESUME	(1 << 7)
 #define	XHCI_SW_BW_CHECKING	(1 << 8)
 #define XHCI_AMD_0x96_HOST	(1 << 9)
-#define XHCI_TRUST_TX_LENGTH	(1 << 10)
 /*
  * In Synopsis DWC3 controller, PORTSC register access involves multiple clock
  * domains. When the software does a PORTSC write, handshakes are needed
@@ -1527,7 +1523,7 @@ struct xhci_hcd {
  * The workaround is to give some delay (5 mac2_clk -> UTMI clock = 60 MHz ->
  * (16.66 ns x 5 = 84ns) ~100ns after writing to the PORTSC register.
  */
-#define XHCI_PORTSC_DELAY	(1 << 11)
+#define XHCI_PORTSC_DELAY	(1 << 10)
 /*
  * In Synopsis DWC3 controller, XHCI RESET takes some time complete. If PIPE
  * RESET is not complete by the time USBCMD.RUN bit is set then HC fails to
@@ -1535,13 +1531,15 @@ struct xhci_hcd {
  *
  * The workaround is to give worst case pipe delay ~350us after resetting HC
  */
-#define XHCI_RESET_DELAY	(1 << 12)
+#define XHCI_RESET_DELAY	(1 << 11)
+#define XHCI_TRUST_TX_LENGTH	(1 << 12)
 #define XHCI_SPURIOUS_REBOOT	(1 << 13)
 #define XHCI_COMP_MODE_QUIRK	(1 << 14)
 #define XHCI_AVOID_BEI		(1 << 15)
 #define XHCI_PLAT		(1 << 16)
 #define XHCI_SLOW_SUSPEND	(1 << 17)
 #define XHCI_SPURIOUS_WAKEUP	(1 << 18)
+#define XHCI_PME_STUCK_QUIRK	(1 << 20)
 	unsigned int		num_active_eps;
 	unsigned int		limit_active_eps;
 	/* There are two roothubs to keep track of bus suspend info for */

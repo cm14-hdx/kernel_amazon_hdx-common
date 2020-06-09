@@ -9,8 +9,8 @@
 #include <linux/i2c.h>
 
 #define I2C_SEQ_REG_SETTING_MAX   5
-#define I2C_SEQ_REG_DATA_MAX      20
-#define I2C_REG_DATA_MAX       (8*1024)
+#define I2C_SEQ_REG_DATA_MAX      256
+#define I2C_REG_DATA_MAX          (8*1024)
 #define MAX_CID                   16
 
 #define I2C_USER_REG_DATA_MAX 1024
@@ -56,6 +56,10 @@
 #define MAX_AF_ITERATIONS 3
 #define MAX_NUMBER_OF_STEPS 47
 #define MAX_POWER_CONFIG 12
+
+#ifdef CONFIG_MACH_SHENQI_K9
+#define MAX_LED_TRIGGERS 3
+#endif
 
 typedef enum sensor_stats_type {
 	YRGB,
@@ -453,7 +457,7 @@ struct msm_eeprom_cfg_data {
 	enum eeprom_cfg_type_t cfgtype;
 	uint8_t is_supported;
 	union {
-		char eeprom_name[MAX_SENSOR_NAME];
+		char eeprom_name[MAX_EEPROM_NAME];
 		struct eeprom_get_t get_data;
 		struct eeprom_read_t read_data;
 		struct eeprom_write_t write_data;
@@ -497,6 +501,9 @@ enum msm_actuator_cfg_type_t {
 	CFG_SET_POSITION,
 	CFG_ACTUATOR_POWERDOWN,
 	CFG_ACTUATOR_POWERUP,
+#ifdef CONFIG_MSM_CAMERA_SENSOR_RHM_OIS_ACTUATOR
+	CFG_SET_ACTUATOR_OIS_INIT,
+#endif
 };
 
 enum actuator_type {
@@ -645,8 +652,13 @@ enum msm_camera_led_config_t {
 
 struct msm_camera_led_cfg_t {
 	enum msm_camera_led_config_t cfgtype;
+#ifdef CONFIG_MACH_SHENQI_K9
+	int32_t torch_current[MAX_LED_TRIGGERS];
+	int32_t flash_current[MAX_LED_TRIGGERS];
+#else
 	uint32_t torch_current;
 	uint32_t flash_current[2];
+#endif
 };
 
 /* sensor init structures and enums */

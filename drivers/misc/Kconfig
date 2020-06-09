@@ -677,6 +677,12 @@ config IDME
 	help
 	  Select Y here to enable IDME support to read the data
           via userspace (i.e. /proc/idme/* entries)
+		  
+config NXP_TFA9890
+	depends on I2C
+	tristate "NXP TFA9890 Support"
+	---help---
+	  The NXP TFA9890 chip is used as a  smart PA Controller.
 
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
@@ -686,4 +692,5 @@ source "drivers/misc/ti-st/Kconfig"
 source "drivers/misc/lis3lv02d/Kconfig"
 source "drivers/misc/carma/Kconfig"
 source "drivers/misc/altera-stapl/Kconfig"
+source "drivers/misc/cclogic/Kconfig"
 endmenu

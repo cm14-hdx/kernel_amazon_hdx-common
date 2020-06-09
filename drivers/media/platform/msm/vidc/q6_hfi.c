@@ -1380,7 +1380,7 @@ int q6_hfi_initialize(struct hfi_device *hdev, u32 device_id,
 	int rc = 0;
 
 	if (!hdev || !res || !callback) {
-		dprintk(VIDC_ERR, "Invalid params: %pK %pK %pK\n",
+		dprintk(VIDC_ERR, "Invalid params: %pK %pK %pK",
 				hdev, res, callback);
 		rc = -EINVAL;
 		goto err_hfi_init;
