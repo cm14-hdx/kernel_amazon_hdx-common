@@ -28,7 +28,7 @@
 
 	sound {
 		compatible = "qcom,msm8974-audio-taiko";
-		qcom,model = "msm8974-taiko-tablet-snd-card";
+		qcom,model = "msm8974-taiko-mtp-snd-card";
 		qcom,audio-routing =
 			"RX_BIAS", "MCLK",
 			"LDO_H", "MCLK",
