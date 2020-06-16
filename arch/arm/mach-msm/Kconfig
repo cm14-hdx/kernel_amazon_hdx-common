@@ -3058,12 +3058,6 @@ config AMZN_RAM_CONSOLE
        help
         Enable the last_kmsg support for amazon device.
 		
-config MSM_SECBOOT
-	default n
-	bool "MSM Secboot verification driver"
-	help
-	Driver to expose secureboot status
-
 config HAS_MACH_MEMUTILS
 	default n
 	bool "Motorola MSM memcpy enhancements"
