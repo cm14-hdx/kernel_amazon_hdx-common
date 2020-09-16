@@ -3220,6 +3220,9 @@ again:
 	/* Ftrace init must be called in the MODULE_STATE_UNFORMED state */
 	ftrace_module_init(mod);
 
+	/* Ftrace init must be called in the MODULE_STATE_UNFORMED state */
+	ftrace_module_init(mod);
+
 	/* Find duplicate symbols */
 	err = verify_export_symbols(mod);
 	if (err < 0)

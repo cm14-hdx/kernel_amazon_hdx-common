@@ -114,6 +114,7 @@
 #include <linux/mount.h>
 #include <net/checksum.h>
 #include <linux/security.h>
+#include <linux/freezer.h>
 
 struct hlist_head unix_socket_table[2 * UNIX_HASH_SIZE];
 EXPORT_SYMBOL_GPL(unix_socket_table);
@@ -1006,19 +1007,16 @@ static int unix_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
 		 */
 		mode = S_IFSOCK |
 		       (SOCK_INODE(sock)->i_mode & ~current_umask());
-		err = mnt_want_write(path.mnt);
-		if (err)
-			goto out_mknod_dput;
 		err = security_path_mknod(&path, dentry, mode, 0);
 		if (err)
 			goto out_mknod_drop_write;
 		err = vfs_mknod(path.dentry->d_inode, dentry, mode, 0);
 out_mknod_drop_write:
-		mnt_drop_write(path.mnt);
 		if (err)
 			goto out_mknod_dput;
-		mutex_unlock(&path.dentry->d_inode->i_mutex);
-		dput(path.dentry);
+		mntget(path.mnt);
+		dget(dentry);
+		done_path_create(&path, dentry);
 		path.dentry = dentry;
 
 		addr->hash = UNIX_HASH_SIZE;
@@ -1053,9 +1051,7 @@ out:
 	return err;
 
 out_mknod_dput:
-	dput(dentry);
-	mutex_unlock(&path.dentry->d_inode->i_mutex);
-	path_put(&path);
+	done_path_create(&path, dentry);
 out_mknod_parent:
 	if (err == -EEXIST)
 		err = -EADDRINUSE;
@@ -2064,7 +2060,7 @@ static long unix_stream_data_wait(struct sock *sk, long timeo)
 
 		set_bit(SOCK_ASYNC_WAITDATA, &sk->sk_socket->flags);
 		unix_state_unlock(sk);
-		timeo = schedule_timeout(timeo);
+		timeo = freezable_schedule_timeout(timeo);
 		unix_state_lock(sk);
 		clear_bit(SOCK_ASYNC_WAITDATA, &sk->sk_socket->flags);
 	}
